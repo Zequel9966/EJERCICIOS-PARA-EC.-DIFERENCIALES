@@ -1,1 +1,465 @@
-<pi>Hola mundo</pi>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solucionador de Ecuaciones Diferenciales</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card-custom:hover {
+            transform: translateY(-5px);
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .method-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .heun-badge { background: #28a745; color: white; }
+        .rk4-badge { background: #dc3545; color: white; }
+        .navbar-custom {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+        }
+        .problem-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#"><strong>📊 Ecuaciones Diferenciales</strong></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#problema37">🧬 Crecimiento Poblacional</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#problema39">🏥 Crecimiento Tumoral</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#problema40">🪂 Caída Libre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#comparacion">📈 Comparación</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="text-center mb-5 gradient-bg p-4 rounded">
+            <h1 class="display-4 mb-3">🔬 Métodos Numéricos para Ecuaciones Diferenciales</h1>
+            <p class="lead">Comparación entre Método de Heun y Runge-Kutta de 4to Orden</p>
+        </div>
+
+        <!-- Problema 37: Crecimiento Poblacional -->
+        <section id="problema37" class="mb-5">
+            <div class="problem-header">
+                <h2>🧬 Problema 37: Crecimiento Poblacional con Capacidad Limitada</h2>
+                <p class="mb-1"><strong>Ecuación:</strong> dN/dt = kN(N_M - N)</p>
+                <p class="mb-0"><strong>Parámetros:</strong> N_M = 5000, k = 0.000095 1/yr, N(0) = 100, t ∈ [0, 20]</p>
+            </div>
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-success btn-custom w-100 mb-3" onclick="solveProblem37()">
+                                🚀 Resolver Problema 37
+                            </button>
+                            <div id="results37"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <canvas id="chart37"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Problema 39: Crecimiento Tumoral -->
+        <section id="problema39" class="mb-5">
+            <div class="problem-header">
+                <h2>🏥 Problema 39: Crecimiento Tumoral</h2>
+                <p class="mb-1"><strong>Ecuación:</strong> dA/dt = αA[1 - (A/k)^v]</p>
+                <p class="mb-0"><strong>Parámetros:</strong> α = 0.8, k = 60, v = 0.25, A(0) = 1 mm², t ∈ [0, 30]</p>
+            </div>
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-danger btn-custom w-100 mb-3" onclick="solveProblem39()">
+                                🧬 Resolver Problema 39
+                            </button>
+                            <div id="results39"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <canvas id="chart39"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Problema 40: Caída Libre -->
+        <section id="problema40" class="mb-5">
+            <div class="problem-header">
+                <h2>🪂 Problema 40: Caída Libre con Resistencia del Aire</h2>
+                <p class="mb-1"><strong>Ecuación:</strong> m(dv/dt) = -mg + kv²</p>
+                <p class="mb-0"><strong>Parámetros:</strong> m = 5kg, g = 9.81 m/s², k = 0.05 kg/m, v(0) = 0 m/s, t ∈ [0, 15]</p>
+            </div>
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-primary btn-custom w-100 mb-3" onclick="solveProblem40()">
+                                🪂 Resolver Problema 40
+                            </button>
+                            <div id="results40"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <canvas id="chart40"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparación de Métodos -->
+        <section id="comparacion" class="mb-5">
+            <div class="problem-header">
+                <h2>📈 Comparación de Métodos Numéricos</h2>
+            </div>
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Aspecto</th>
+                                    <th><span class="heun-badge">Método de Heun</span></th>
+                                    <th><span class="rk4-badge">Runge-Kutta 4</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Orden de Precisión</strong></td>
+                                    <td>2do orden (O(h²))</td>
+                                    <td>4to orden (O(h⁴))</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Evaluaciones por paso</strong></td>
+                                    <td>2 evaluaciones de f(t,y)</td>
+                                    <td>4 evaluaciones de f(t,y)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Complejidad Computacional</strong></td>
+                                    <td>Menor (más rápido)</td>
+                                    <td>Mayor (más lento)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Precisión</strong></td>
+                                    <td>Buena para pasos pequeños</td>
+                                    <td>Excelente, superior</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estabilidad</strong></td>
+                                    <td>Buena estabilidad</td>
+                                    <td>Muy buena estabilidad</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Uso Recomendado</strong></td>
+                                    <td>Problemas simples, cálculos rápidos</td>
+                                    <td>Alta precisión requerida</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusiones -->
+        <section class="mb-5">
+            <div class="card card-custom">
+                <div class="card-header gradient-bg">
+                    <h2 class="mb-0">📝 Conclusiones</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>🔍 Sobre los Problemas:</h4>
+                            <ul>
+                                <li><strong>Crecimiento Poblacional:</strong> Muestra el comportamiento logístico típico con saturación en la capacidad límite.</li>
+                                <li><strong>Crecimiento Tumoral:</strong> Presenta un crecimiento inicial exponencial que se desacelera debido al término de inhibición.</li>
+                                <li><strong>Caída Libre:</strong> Demuestra cómo la resistencia del aire limita la velocidad terminal del objeto.</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>⚡ Sobre los Métodos Numéricos:</h4>
+                            <ul>
+                                <li><strong>Runge-Kutta 4:</strong> Proporciona mayor precisión y es preferible para problemas que requieren alta exactitud.</li>
+                                <li><strong>Heun:</strong> Ofrece un balance entre precisión y eficiencia computacional.</li>
+                                <li><strong>Diferencias:</strong> Las diferencias son más notables en pasos de tiempo grandes o funciones con alta curvatura.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="gradient-bg text-center py-3 mt-5">
+        <p class="mb-0">© 2025 - Métodos Numéricos para Ecuaciones Diferenciales</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let charts = {};
+
+        // Método de Heun
+        function heunMethod(f, t0, y0, h, n) {
+            let t = [t0];
+            let y = [y0];
+            
+            for (let i = 0; i < n; i++) {
+                let ti = t[i];
+                let yi = y[i];
+                
+                let k1 = f(ti, yi);
+                let k2 = f(ti + h, yi + h * k1);
+                
+                let yNext = yi + (h/2) * (k1 + k2);
+                
+                t.push(ti + h);
+                y.push(yNext);
+            }
+            
+            return {t, y};
+        }
+
+        // Método de Runge-Kutta 4to orden
+        function rungeKutta4(f, t0, y0, h, n) {
+            let t = [t0];
+            let y = [y0];
+            
+            for (let i = 0; i < n; i++) {
+                let ti = t[i];
+                let yi = y[i];
+                
+                let k1 = h * f(ti, yi);
+                let k2 = h * f(ti + h/2, yi + k1/2);
+                let k3 = h * f(ti + h/2, yi + k2/2);
+                let k4 = h * f(ti + h, yi + k3);
+                
+                let yNext = yi + (k1 + 2*k2 + 2*k3 + k4) / 6;
+                
+                t.push(ti + h);
+                y.push(yNext);
+            }
+            
+            return {t, y};
+        }
+
+        // Función para crear gráfico
+        function createChart(canvasId, title, heunData, rk4Data, yLabel) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Método de Heun',
+                        data: heunData.t.map((t, i) => ({x: t, y: heunData.y[i]})),
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 2
+                    }, {
+                        label: 'Runge-Kutta 4',
+                        data: rk4Data.t.map((t, i) => ({x: t, y: rk4Data.y[i]})),
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: title,
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tiempo (t)'
+                            },
+                            type: 'linear'
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: yLabel
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para mostrar resultados
+        function showResults(containerId, heunData, rk4Data, decimals = 2) {
+            const container = document.getElementById(containerId);
+            const n = heunData.t.length;
+            const finalIndex = n - 1;
+            
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <h5>📊 Resultados Finales:</h5>
+                    <p><span class="heun-badge">Heun</span> t=${heunData.t[finalIndex].toFixed(1)}: y = ${heunData.y[finalIndex].toFixed(decimals)}</p>
+                    <p><span class="rk4-badge">RK4</span> t=${rk4Data.t[finalIndex].toFixed(1)}: y = ${rk4Data.y[finalIndex].toFixed(decimals)}</p>
+                    <p><strong>Diferencia:</strong> ${Math.abs(heunData.y[finalIndex] - rk4Data.y[finalIndex]).toFixed(decimals)}</p>
+                    <p><strong>Pasos calculados:</strong> ${n}</p>
+                </div>
+            `;
+        }
+
+        // Problema 37: Crecimiento Poblacional
+        function solveProblem37() {
+            const k = 0.000095;
+            const NM = 5000;
+            const N0 = 100;
+            const t0 = 0;
+            const tf = 20;
+            const h = 0.1;
+            const n = Math.floor((tf - t0) / h);
+            
+            function f(t, N) {
+                return k * N * (NM - N);
+            }
+            
+            const heunResult = heunMethod(f, t0, N0, h, n);
+            const rk4Result = rungeKutta4(f, t0, N0, h, n);
+            
+            createChart('chart37', 'Crecimiento Poblacional', heunResult, rk4Result, 'Población (N)');
+            showResults('results37', heunResult, rk4Result, 0);
+        }
+
+        // Problema 39: Crecimiento Tumoral
+        function solveProblem39() {
+            const alpha = 0.8;
+            const k = 60;
+            const v = 0.25;
+            const A0 = 1;
+            const t0 = 0;
+            const tf = 30;
+            const h = 0.1;
+            const n = Math.floor((tf - t0) / h);
+            
+            function f(t, A) {
+                return alpha * A * (1 - Math.pow(A/k, v));
+            }
+            
+            const heunResult = heunMethod(f, t0, A0, h, n);
+            const rk4Result = rungeKutta4(f, t0, A0, h, n);
+            
+            createChart('chart39', 'Crecimiento Tumoral', heunResult, rk4Result, 'Área del Tumor (mm²)');
+            showResults('results39', heunResult, rk4Result, 2);
+        }
+
+        // Problema 40: Caída Libre
+        function solveProblem40() {
+            const m = 5;
+            const g = 9.81;
+            const k = 0.05;
+            const v0 = 0;
+            const t0 = 0;
+            const tf = 15;
+            const h = 0.01;
+            const n = Math.floor((tf - t0) / h);
+            
+            function f(t, v) {
+                return (-m * g + k * v * v) / m;
+            }
+            
+            const heunResult = heunMethod(f, t0, v0, h, n);
+            const rk4Result = rungeKutta4(f, t0, v0, h, n);
+            
+            createChart('chart40', 'Velocidad de Caída Libre', heunResult, rk4Result, 'Velocidad (m/s)');
+            showResults('results40', heunResult, rk4Result, 3);
+        }
+
+        // Smooth scrolling para navegación
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
